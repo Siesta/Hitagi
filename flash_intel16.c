@@ -18,8 +18,13 @@
 
 #include "flash.h"
 
-#define FLASH_INTEL_START_PARAMETER_BLOCKS   ((volatile FLASH_DATA_WIDTH *) 0x10000000)
-#define FLASH_INTEL_END_PARAMETER_BLOCKS     ((volatile FLASH_DATA_WIDTH *) 0x10020000)
+#if defined(FTR_FLASH_GEOMETRY_2000X8)
+	#define FLASH_INTEL_START_PARAMETER_BLOCKS   ((volatile FLASH_DATA_WIDTH *) 0x10000000)
+	#define FLASH_INTEL_END_PARAMETER_BLOCKS     ((volatile FLASH_DATA_WIDTH *) 0x10010000)
+#else
+	#define FLASH_INTEL_START_PARAMETER_BLOCKS   ((volatile FLASH_DATA_WIDTH *) 0x10000000)
+	#define FLASH_INTEL_END_PARAMETER_BLOCKS     ((volatile FLASH_DATA_WIDTH *) 0x10020000)
+#endif /* !defined(FLASH_GEOMETRY_8X2000) */
 
 #define FLASH_INTEL_STATUS_READY           FLASH_COMMAND(0x80)
 
@@ -168,12 +173,22 @@ int flash_write_buffer(volatile u16 *reg_addr_ctl, const u16 *buffer, u32 size) 
 
 int flash_geometry(volatile u16 *reg_addr_ctl) {
 	u32 block_size;
+	u32 block_size_p;
+	u32 block_size_m;
 	u32 addr = (u32) reg_addr_ctl;
 
+#if defined(FTR_FLASH_GEOMETRY_2000X8)
+	block_size_p = 0x2000;  /* 0x2000x8 parameter blocks. */
+	block_size_m = 0x10000; /* 0x10000x255+ main blocks. */
+#else
+	block_size_p = 0x8000;  /* 0x8000x4 parameter blocks. */
+	block_size_m = 0x20000; /* 0x20000x255+ main blocks. */
+#endif
+
 	if ((addr >= ((u32) FLASH_INTEL_START_PARAMETER_BLOCKS)) && (addr < ((u32) FLASH_INTEL_END_PARAMETER_BLOCKS))) {
-		block_size = 0x8000;  /* 0x8000x4 parameter blocks. */
+		block_size = block_size_p;
 	} else {
-		block_size = 0x20000; /* 0x20000x255+ main blocks. */
+		block_size = block_size_m;
 	}
 
 	/*
