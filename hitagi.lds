@@ -17,8 +17,8 @@ MEMORY {
 	PATCH (RWX) : ORIGIN = %ORIGIN%, LENGTH = %LENGTH%
 }
 
-/* Generate Big-Endian ARM ELFs. */
-OUTPUT_FORMAT("elf32-bigarm")
+/* Generate target-specific ARM ELFs. */
+OUTPUT_FORMAT("%OUTPUT_FORMAT%")
 
 /* Entry point function. */
 ENTRY(_start)
@@ -26,6 +26,8 @@ ENTRY(_start)
 /* Combine all relevant section to one. */
 SECTIONS {
 	.text : {
+		KEEP(*(.startup.entry))
+		KEEP(*(.startup.cache))
 		*(.startup .startup.*)
 		*(.text .text.*)
 		*(.rodata .rodata.*)

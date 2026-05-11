@@ -45,7 +45,13 @@ extern int flash_get_otp_zone(volatile u16 *reg_addr_ctl, u8 *otp_out_buffer, u1
 	typedef u16 FLASH_DATA_WIDTH;
 #endif
 
+#if defined(FTR_ARGONLV)
+#define FLASH_START_ADDRESS            ((volatile FLASH_DATA_WIDTH *) 0xA0000000)
+#define FLASH_SIZE_BYTES               (0x04000000)
+#else
 #define FLASH_START_ADDRESS            ((volatile FLASH_DATA_WIDTH *) 0x10000000)
+#define FLASH_SIZE_BYTES               (0x02000000)
+#endif
 
 #define FLASH_MAX_OTP_SIZE             (1024)
 
